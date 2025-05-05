@@ -10,6 +10,7 @@ import Startups from "@/pages/startups";
 import Investors from "@/pages/investors";
 import Leaderboard from "@/pages/leaderboard";
 import Profile from "@/pages/profile";
+import { OnboardingController } from "@/components/onboarding";
 import { useState } from "react";
 
 export type UserRole = "founder" | "investor";
@@ -26,10 +27,12 @@ function App() {
           <Route path="/startups" component={Startups} />
           <Route path="/investors" component={Investors} />
           <Route path="/leaderboard" component={Leaderboard} />
-          <Route path="/profile" component={Profile} />
+          <Route path="/profile" component={() => <Profile userRole={userRole} />} />
           <Route component={NotFound} />
         </Switch>
       </Layout>
+      {/* Onboarding tutorial that appears based on user role */}
+      <OnboardingController userRole={userRole} />
       <Toaster />
     </QueryClientProvider>
   );
