@@ -34,18 +34,17 @@ interface NavLinkProps {
 
 function NavLink({ href, active, children, onClick }: NavLinkProps) {
   return (
-    <Link href={href}>
-      <a
-        className={cn(
-          "px-1 pt-1 border-b-2 text-sm font-medium",
-          active
-            ? "border-primary-500 text-gray-900"
-            : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
-        )}
-        onClick={onClick}
-      >
-        {children}
-      </a>
+    <Link 
+      href={href}
+      onClick={onClick}
+      className={cn(
+        "px-1 pt-1 border-b-2 text-sm font-medium",
+        active
+          ? "border-primary-500 text-gray-900"
+          : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+      )}
+    >
+      {children}
     </Link>
   );
 }
@@ -55,7 +54,7 @@ export default function Navbar({ onRoleToggle, userRole }: NavbarProps) {
   const [location, setLocation] = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const { data: currentUser } = useQuery({
+  const { data: currentUser } = useQuery<{id: string, username: string, name?: string}>({
     queryKey: ["/api/me"],
   });
 
@@ -74,15 +73,16 @@ export default function Navbar({ onRoleToggle, userRole }: NavbarProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex">
-            <Link href="/">
-              <a className="flex-shrink-0 flex items-center">
-                <div className="h-8 w-8 bg-primary-600 rounded-md flex items-center justify-center">
-                  <span className="text-white font-bold">SS</span>
-                </div>
-                <span className="ml-2 text-xl font-display font-bold text-gray-900">
-                  StartupSim
-                </span>
-              </a>
+            <Link 
+              href="/"
+              className="flex-shrink-0 flex items-center"
+            >
+              <div className="h-8 w-8 bg-primary-600 rounded-md flex items-center justify-center">
+                <span className="text-white font-bold">SS</span>
+              </div>
+              <span className="ml-2 text-xl font-display font-bold text-gray-900">
+                StartupSim
+              </span>
             </Link>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
               {navLinks.map((link) => (
@@ -122,8 +122,8 @@ export default function Navbar({ onRoleToggle, userRole }: NavbarProps) {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem asChild>
-                      <Link href="/profile">
-                        <a className="cursor-pointer w-full">Profile</a>
+                      <Link href="/profile" className="cursor-pointer w-full">
+                        Profile
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem>
@@ -152,18 +152,18 @@ export default function Navbar({ onRoleToggle, userRole }: NavbarProps) {
                   </SheetHeader>
                   <div className="flex flex-col mt-6 space-y-4">
                     {navLinks.map((link) => (
-                      <Link key={link.name} href={link.href}>
-                        <a 
-                          className={cn(
-                            "px-3 py-2 rounded-md text-base font-medium",
-                            location === link.href
-                              ? "bg-primary-100 text-primary-900"
-                              : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                          )}
-                          onClick={closeMenu}
-                        >
-                          {link.name}
-                        </a>
+                      <Link 
+                        key={link.name} 
+                        href={link.href}
+                        className={cn(
+                          "px-3 py-2 rounded-md text-base font-medium",
+                          location === link.href
+                            ? "bg-primary-100 text-primary-900"
+                            : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                        )}
+                        onClick={closeMenu}
+                      >
+                        {link.name}
                       </Link>
                     ))}
                     <div className="pt-4 mt-4 border-t border-gray-200">
