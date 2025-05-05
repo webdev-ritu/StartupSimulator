@@ -1,7 +1,11 @@
-import type { Express } from "express";
+import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
+import multer from "multer";
+import fs from "fs";
+import path from "path";
+import { v4 as uuidv4 } from "uuid";
 
 interface Client {
   userId: string;
@@ -120,6 +124,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // API routes
   const apiPrefix = "/api";
+  
+  // Set up multer for file uploads and static file serving
+  const uploadsDir = path.join(process.cwd(), 'uploads');
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
+  
+  // Configure multer storage
+  const multerStorage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, uploadsDir);
+    },
+    filename: function (req, file, cb) {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+      cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    }
+  });
+  
+  const upload = multer({ 
+    storage: multerStorage,
+    limits: {
+      fileSize: 10 * 1024 * 1024, // 10MB max file size
+    },
+    fileFilter: function (req, file, cb) {
+      // Accept only PDF files
+      if (file.mimetype !== 'application/pdf') {
+        return cb(new Error('Only PDF files are allowed'));
+      }
+      cb(null, true);
+    }
+  });
 
   // User Authentication and Profile
   app.get(`${apiPrefix}/me`, async (req, res) => {
@@ -173,6 +208,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error updating startup:", error);
       res.status(500).json({ error: "Failed to update startup data" });
+    }
+  });
+  
+  // Upload pitch deck PDF for a startup
+  app.post(`${apiPrefix}/founder/startup/:startupId/pitch-deck`, upload.single('pitchDeck'), async (req, res) => {
+    try {
+      const { startupId } = req.params;
+      
+      if (!req.file) {
+        return res.status(400).json({ error: "No file uploaded" });
+      }
+      
+      // Generate URL for the uploaded file
+      const fileUrl = `/uploads/${req.file.filename}`;
+      
+      // Update startup with pitch deck info in storage
+      const updatedStartup = await storage.updateStartupProfile({
+        id: startupId,
+        pitchDeck: {
+          filename: req.file.originalname,
+          updatedAt: new Date().toISOString(),
+          slides: 1, // This would be determined by PDF processing in a real app
+          url: fileUrl
+        }
+      });
+      
+      res.json({
+        success: true,
+        pitchDeck: {
+          filename: req.file.originalname,
+          url: fileUrl
+        }
+      });
+    } catch (error) {
+      console.error("Error uploading pitch deck:", error);
+      res.status(500).json({ error: "Failed to upload pitch deck" });
     }
   });
 
