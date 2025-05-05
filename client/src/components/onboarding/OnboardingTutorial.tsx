@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { UserRole } from "@/App";
 import { Badge } from "@/components/ui/badge";
-import { useLocation } from "wouter";
+import { useLocation, useRoute } from "wouter";
 import { Confetti } from "./Confetti";
 import { 
   Dialog,
@@ -257,8 +257,10 @@ export default function OnboardingTutorial({ userRole, onComplete }: OnboardingT
   // Handle action button click
   const handleActionClick = () => {
     if (currentStep.actionTarget.startsWith("/")) {
-      // It's a navigation action
+      // It's a navigation action, use setLocation for wouter navigation
       setLocation(currentStep.actionTarget);
+      // Also close the tutorial when navigating away
+      setTimeout(() => onComplete(), 100);
     } else if (currentStep.actionTarget === "next-button") {
       // It's a next button action
       handleNextStep();
