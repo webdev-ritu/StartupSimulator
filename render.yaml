@@ -1,0 +1,15 @@
+services:
+  # A web service
+  - type: web
+    name: startupsimulator
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: node server.js
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+    
+databases:
+  - name: startupsimulator-db
+    databaseName: startupsimulator
+    user: startupsimulator
