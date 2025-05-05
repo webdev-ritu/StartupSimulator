@@ -1,22 +1,5 @@
 import { db } from "./index";
-import { 
-  users, 
-  startups, 
-  categories,
-  stages,
-  sectors,
-  businessModels,
-  investors,
-  investorPreferences,
-  investorPreferencesSectors,
-  investorPreferencesStages,
-  fundingRounds,
-  offers,
-  capTables,
-  pitches,
-  pitchRooms,
-  feedback
-} from "@shared/schema";
+import { users } from "@shared/schema";
 import { v4 as uuidv4 } from "uuid";
 import bcrypt from "bcrypt";
 
@@ -30,31 +13,28 @@ async function seed() {
       return;
     }
     
-    console.log("Seeding database...");
+    console.log("Seeding database with minimal data...");
     
-    // Categories
-    const categoriesData = [
-      { name: "SaaS", description: "Software as a Service" },
-      { name: "FinTech", description: "Financial Technology" },
-      { name: "HealthTech", description: "Healthcare Technology" },
-      { name: "EdTech", description: "Education Technology" },
-      { name: "E-commerce", description: "Electronic Commerce" },
-      { name: "AI", description: "Artificial Intelligence" },
-      { name: "CleanTech", description: "Clean Technology" },
-      { name: "Hardware", description: "Physical Technology" }
-    ];
+    // Create a test user
+    const password = await bcrypt.hash("password123", 10);
     
-    const insertedCategories = await db.insert(categories).values(
-      categoriesData.map(category => ({
-        id: uuidv4(),
-        name: category.name,
-        description: category.description,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }))
-    ).returning();
+    const userData = {
+      id: uuidv4(),
+      username: "testuser",
+      password: password,
+      name: "Test User",
+      email: "test@example.com",
+      role: "founder",
+      bio: "Test bio",
+      location: "Test Location",
+      title: "CEO & Founder",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
     
-    console.log(`Inserted ${insertedCategories.length} categories`);
+    const [insertedUser] = await db.insert(users).values(userData).returning();
+    
+    console.log("Inserted test user:", insertedUser.name);
     
     // Stages
     const stagesData = [
