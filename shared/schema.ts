@@ -24,16 +24,8 @@ export const users = pgTable("users", {
   updatedAt: timestamp("updated_at").defaultNow().notNull()
 });
 
-export const usersRelations = relations(users, ({ one, many }) => ({
-  startup: one(startups, {
-    fields: [users.id],
-    references: [startups.userId]
-  }),
-  investor: one(investors, {
-    fields: [users.id],
-    references: [investors.userId]
-  })
-}));
+// Relations will be defined after all tables are declared to avoid circular dependencies
+// This comment serves as a placeholder for usersRelations
 
 export const insertUserSchema = createInsertSchema(users);
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -75,9 +67,7 @@ export const sectors = pgTable("sectors", {
   updatedAt: timestamp("updated_at").defaultNow().notNull()
 });
 
-export const sectorsRelations = relations(sectors, ({ many }) => ({
-  investorPreferences: many(investorPreferencesSectors)
-}));
+// Will define sectorsRelations after all tables are created
 
 // Business Models
 export const businessModels = pgTable("business_models", {
@@ -394,4 +384,14 @@ export const bookmarksRelations = relations(bookmarks, ({ one }) => ({
     fields: [bookmarks.startupId],
     references: [startups.id]
   })
+}));
+
+// Define relations at the end to resolve circular dependencies
+export const sectorsRelations = relations(sectors, ({ many }) => ({
+  investorPreferences: many(investorPreferencesSectors)
+}));
+
+export const usersRelations = relations(users, ({ one }) => ({
+  startup: one(startups, { fields: [users.id], references: [startups.userId] }),
+  investor: one(investors, { fields: [users.id], references: [investors.userId] })
 }));
