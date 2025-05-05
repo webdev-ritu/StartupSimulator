@@ -258,7 +258,7 @@ export default function OnboardingTutorial({ userRole, onComplete }: OnboardingT
   const handleActionClick = () => {
     if (currentStep.actionTarget.startsWith("/")) {
       // It's a navigation action
-      navigate(currentStep.actionTarget);
+      setLocation(currentStep.actionTarget);
     } else if (currentStep.actionTarget === "next-button") {
       // It's a next button action
       handleNextStep();
